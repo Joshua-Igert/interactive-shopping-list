@@ -1,7 +1,7 @@
 // 1. Find the parts of the machine
 const inputField = document.getElementById('item-input');
 const addButton = document.getElementById('add-button');
-const shoppingList = document.querySelector('ul');
+const shoppingList = document.getElementById('item-list');
 
 // 2. Tell the button what to do when clicked
 addButton.addEventListener('click', function() {
