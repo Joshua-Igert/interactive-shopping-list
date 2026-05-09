@@ -45,7 +45,7 @@ function createListItem(text) {
     });
 
     li.appendChild(checkbox);
-    li.append(text);
+    li.appendChild(document.createTextNode(text));
     li.appendChild(deleteBtn);
     shoppingList.appendChild(li);
 }
