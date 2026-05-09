@@ -1,54 +1,61 @@
-// 1. Select our parts
+// 1. Select the parts of the app we need to control
 const inputField = document.getElementById('item-input');
 const addButton = document.getElementById('add-button');
 const shoppingList = document.getElementById('item-list');
 
-// 2. Load saved items on start
+// EVENT: When the page first loads, grab any saved data from the browser
 document.addEventListener('DOMContentLoaded', getLocalItems);
 
+// EVENT: When the "Add Item" button is clicked, run the addItem function
 addButton.addEventListener('click', addItem);
 
 function addItem() {
     const itemText = inputField.value;
     if (itemText !== "") {
         createListItem(itemText);
-        saveLocalItems(itemText);
-        inputField.value = "";
+        saveLocalItems(itemText); // Logic to save the item permanently
+        inputField.value = "";    // Clear the box for the next entry
     }
 }
 
-// 3. The Builder (Updated with Delete Button)
+// THE BUILDER: This function creates the HTML elements from scratch
 function createListItem(text) {
     const li = document.createElement('li');
     
-    // Checkbox (The "Cross-out" sensor)
+    // Create Checkbox (The "Cross-out" feature)
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.addEventListener('change', function() {
-        if (this.checked) li.classList.add('completed');
-        else li.classList.remove('completed');
+        if (this.checked) {
+            li.classList.add('completed');
+        } else {
+            li.classList.remove('completed');
+        }
     });
 
-    // Delete Button (The "Remove" sensor)
+    // Create Delete Button (The "X" button)
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'X';
-    deleteBtn.style.marginLeft = '10px'; // Give it a little space
+    deleteBtn.style.marginLeft = '10px';
+    
+    // EVENT: Remove the item from the screen AND the browser storage
     deleteBtn.addEventListener('click', function() {
-        li.remove(); // Remove from the screen
-        removeLocalItems(text); // Remove from the "filing cabinet"
+        li.remove();          // Remove the visual element from the screen
+        removeLocalItems(text); // Remove the specific text from storage
     });
 
     li.appendChild(checkbox);
     li.append(text);
-    li.appendChild(deleteBtn); // Add the "X" to the list item
+    li.appendChild(deleteBtn);
     shoppingList.appendChild(li);
 }
 
-// --- STORAGE ENGINES ---
+// --- STORAGE ENGINES (The "Filing Cabinet" Logic) ---
 
 function saveLocalItems(item) {
     let items = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
     items.push(item);
+    // REMEMBER: LocalStorage only accepts strings (Plain Text)!
     localStorage.setItem('items', JSON.stringify(items));
 }
 
@@ -57,10 +64,10 @@ function getLocalItems() {
     items.forEach(item => createListItem(item));
 }
 
-// NEW: This removes the item from the cabinet when you click "X"
+// THE REMOVER: This cleans up our filing cabinet
 function removeLocalItems(itemText) {
     let items = JSON.parse(localStorage.getItem('items'));
-    // Filter out the item we want to delete
+    // Use .filter to keep everything EXCEPT the item we just deleted
     items = items.filter(i => i !== itemText);
     localStorage.setItem('items', JSON.stringify(items));
 }
