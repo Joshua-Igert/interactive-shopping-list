@@ -1,70 +1,66 @@
-// Select the HTML elements we need to work with
+// 1. Select our parts
 const inputField = document.getElementById('item-input');
 const addButton = document.getElementById('add-button');
 const shoppingList = document.getElementById('item-list');
 
-// EVENT: As soon as the page loads, try to grab saved items from the browser
+// 2. Load saved items on start
 document.addEventListener('DOMContentLoaded', getLocalItems);
 
-// EVENT: Run the addItem function when the user clicks the button
 addButton.addEventListener('click', addItem);
 
 function addItem() {
     const itemText = inputField.value;
     if (itemText !== "") {
-        createListItem(itemText); // Put it on the screen
-        saveLocalItems(itemText); // Save it to the browser's "filing cabinet"
-        inputField.value = "";    // Clear the input box
+        createListItem(itemText);
+        saveLocalItems(itemText);
+        inputField.value = "";
     }
 }
 
-// This function builds the HTML "bones" for each list item
+// 3. The Builder (Updated with Delete Button)
 function createListItem(text) {
     const li = document.createElement('li');
     
-    // Create a checkbox so the user can mark items as "got it"
+    // Checkbox (The "Cross-out" sensor)
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    
-    // Listen for the checkbox to be checked/unchecked
     checkbox.addEventListener('change', function() {
-        if (this.checked) {
-            li.classList.add('completed'); // Adds the line-through style from CSS
-        } else {
-            li.classList.remove('completed'); // Removes the line-through
-        }
+        if (this.checked) li.classList.add('completed');
+        else li.classList.remove('completed');
     });
 
-    li.appendChild(checkbox); // Put the checkbox inside the <li>
-    li.append(text);          // Put the text inside the <li>
-    shoppingList.appendChild(li); // Stick the whole <li> into the main list
+    // Delete Button (The "Remove" sensor)
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'X';
+    deleteBtn.style.marginLeft = '10px'; // Give it a little space
+    deleteBtn.addEventListener('click', function() {
+        li.remove(); // Remove from the screen
+        removeLocalItems(text); // Remove from the "filing cabinet"
+    });
+
+    li.appendChild(checkbox);
+    li.append(text);
+    li.appendChild(deleteBtn); // Add the "X" to the list item
+    shoppingList.appendChild(li);
 }
 
-// --- PERSISTENCE (Saving the data) ---
+// --- STORAGE ENGINES ---
 
-// This saves our items so they don't disappear on refresh
 function saveLocalItems(item) {
-    let items;
-    // Check if we already have a list in the "filing cabinet"
-    if (localStorage.getItem('items') === null) {
-        items = [];
-    } else {
-        items = JSON.parse(localStorage.getItem('items'));
-    }
+    let items = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
     items.push(item);
     localStorage.setItem('items', JSON.stringify(items));
 }
 
-// This grabs the list from the "cabinet" and puts it back on the screen
 function getLocalItems() {
-    let items;
-    if (localStorage.getItem('items') === null) {
-        items = [];
-    } else {
-        items = JSON.parse(localStorage.getItem('items'));
-    }
-    // For every item found in storage, run the "Builder" function
-    items.forEach(function(item) {
-        createListItem(item);
-    });
+    let items = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
+    items.forEach(item => createListItem(item));
+}
+
+// NEW: This removes the item from the cabinet when you click "X"
+function removeLocalItems(itemText) {
+    let items = JSON.parse(localStorage.getItem('items'));
+    // Filter out the item we want to delete
+    items = items.filter(i => i !== itemText);
+    localStorage.setItem('items', JSON.stringify(items));
 }
