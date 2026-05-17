@@ -6,9 +6,19 @@
 </head>
 <body>
   <h2>Shopping List</h2>
-  <input type="text" id="item-input">
-  <button id="add-button">Add Item</button>
+  <div class="input-area">
+    <input type="text" id="item-input" placeholder="Add an item...">
+    <button id="add-button">Add Item</button>
+  </div>
+  
   <ul id="item-list"></ul>
+
+  <div id="calculator-section">
+    <p>Subtotal: $<span id="subtotal-val">0.00</span></p>
+    <p>Michigan Tax (6%): $<span id="tax-val">0.00</span></p>
+    <hr>
+    <h3>Total Cost: $<span id="total-val">0.00</span></h3>
+  </div>
 
   <script src="script.js"></script> 
 </body>
