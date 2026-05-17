@@ -1,30 +1,31 @@
-// 1. Select the parts of the app we need to control
 const inputField = document.getElementById('item-input');
 const addButton = document.getElementById('add-button');
 const shoppingList = document.getElementById('item-list');
 
-// EVENT: When the page first loads, grab any saved data from the browser
-document.addEventListener('DOMContentLoaded', getLocalItems);
+// Select our new calculator elements
+const subtotalDisplay = document.getElementById('subtotal-val');
+const taxDisplay = document.getElementById('tax-val');
+const totalDisplay = document.getElementById('total-val');
 
-// EVENT: When the "Add Item" button is clicked, run the addItem function
+document.addEventListener('DOMContentLoaded', getLocalItems);
 addButton.addEventListener('click', addItem);
 
 function addItem() {
     const itemText = inputField.value;
     if (itemText !== "") {
-        createListItem(itemText);
-        saveLocalItems(itemText); // Logic to save the item permanently
-        inputField.value = "";    // Clear the box for the next entry
+        createListItem(itemText, 0); // Default price to 0 initially
+        saveLocalItems(itemText, 0);
+        inputField.value = "";    
     }
 }
 
-// THE BUILDER: This function creates the HTML elements from scratch
-function createListItem(text) {
+function createListItem(text, savedPrice = 0) {
     const li = document.createElement('li');
     
-    // Create Checkbox (The "Cross-out" feature)
+    // Checkbox (Cross-out)
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
+    checkbox.className = 'item-checkbox';
     checkbox.addEventListener('change', function() {
         if (this.checked) {
             li.classList.add('completed');
@@ -33,41 +34,88 @@ function createListItem(text) {
         }
     });
 
-    // Create Delete Button (The "X" button)
+    // Item text label
+    const textSpan = document.createElement('span');
+    textSpan.textContent = text;
+    textSpan.className = 'item-text';
+
+    // NEW: Price Input Box for this specific item
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.placeholder = '$0.00';
+    priceInput.value = savedPrice > 0 ? savedPrice : '';
+    priceInput.className = 'price-input';
+    priceInput.min = "0";
+    priceInput.step = "0.01";
+    
+    // Automatically recalculate everything whenever a price changes
+    priceInput.addEventListener('input', calculateTotals);
+
+    // Delete Button (X)
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'X';
-    deleteBtn.style.marginLeft = '10px';
-    
-    // EVENT: Remove the item from the screen AND the browser storage
+    deleteBtn.className = 'delete-btn';
     deleteBtn.addEventListener('click', function() {
-        li.remove();          // Remove the visual element from the screen
-        removeLocalItems(text); // Remove the specific text from storage
+        li.remove();          
+        removeLocalItems(text); 
+        calculateTotals(); // Recalculate when an item is removed
     });
 
     li.appendChild(checkbox);
-    li.appendChild(document.createTextNode(text));
+    li.appendChild(textSpan);
+    li.appendChild(priceInput);
     li.appendChild(deleteBtn);
     shoppingList.appendChild(li);
+    
+    calculateTotals();
 }
 
-// --- STORAGE ENGINES (The "Filing Cabinet" Logic) ---
+// NEW: The Core Calculator Logic
+function calculateTotals() {
+    let subtotal = 0;
+    const allPriceInputs = document.querySelectorAll('.price-input');
+    
+    // Sum up all the valid prices entered by the user
+    allPriceInputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val) && val > 0) {
+            subtotal += val;
+        }
+    });
 
-function saveLocalItems(item) {
+    // Michigan sales tax formula: 6%
+    const michiganTax = subtotal * 0.06;
+    const finalTotal = subtotal + michiganTax;
+
+    // Update the screen, locked to exactly two decimal places for currency
+    subtotalDisplay.textContent = subtotal.toFixed(2);
+    taxDisplay.textContent = michiganTax.toFixed(2);
+    totalDisplay.textContent = finalTotal.toFixed(2);
+}
+
+// --- STORAGE ENGINES (Updated to remember prices too!) ---
+
+function saveLocalItems(item, price) {
     let items = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
-    items.push(item);
-    // REMEMBER: LocalStorage only accepts strings (Plain Text)!
+    // Save as an object containing both the name and the price
+    items.push({ name: item, price: price });
     localStorage.setItem('items', JSON.stringify(items));
 }
 
 function getLocalItems() {
     let items = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
-    items.forEach(item => createListItem(item));
+    items.forEach(item => {
+        // Handle older format vs new object format gracefully
+        if (typeof item === 'object') {
+            createListItem(item.name, item.price);
+        } else {
+            createListItem(item, 0);
+        }
+    });
 }
 
-// THE REMOVER: This cleans up our filing cabinet
 function removeLocalItems(itemText) {
     let items = JSON.parse(localStorage.getItem('items'));
-    // Use .filter to keep everything EXCEPT the item we just deleted
-    items = items.filter(i => i !== itemText);
+    items = items.filter(i => (typeof i === 'object' ? i.name : i) !== itemText);
     localStorage.setItem('items', JSON.stringify(items));
 }
