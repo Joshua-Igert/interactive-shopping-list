@@ -4,17 +4,24 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 50px;
+  padding: 40px 20px;
 }
 
 h2 {
   color: #333;
 }
 
+.input-area {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 #item-input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 200px;
 }
 
 #add-button {
@@ -30,8 +37,82 @@ h2 {
   background-color: #218838;
 }
 
-/* This is the "magic" for your checkboxes later */
-.completed {
+/* List Formatting */
+#item-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 400px;
+}
+
+#item-list li {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.item-checkbox {
+  margin-right: 12px;
+}
+
+.item-text {
+  flex-grow: 1; /* Pushes the price box to the right side smoothly */
+  color: #333;
+}
+
+.price-input {
+  width: 70px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 15px;
+  text-align: right;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.completed .item-text {
   text-decoration: line-through;
   color: gray;
+}
+
+/* Calculator Section Styling */
+#calculator-section {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border-top: 4px solid #28a745;
+}
+
+#calculator-section p {
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  color: #555;
+}
+
+#calculator-section h3 {
+  margin: 10px 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  color: #111;
 }
